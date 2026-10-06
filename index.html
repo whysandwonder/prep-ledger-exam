@@ -388,6 +388,14 @@ body[data-density="compact"] .hero{padding:13px 15px}
   th{background:#f3f3f3}
 }
 
+.credit{margin:34px auto 0;padding-top:16px;border-top:1px solid var(--rule);
+  max-width:1160px;text-align:center;font-size:11px;letter-spacing:.06em;
+  color:var(--ink-faint);opacity:.75;-webkit-user-select:none;user-select:none}
+.credit:hover{opacity:1}
+body[data-view="mobile"] .credit{max-width:460px}
+body[data-density="compact"] .credit{margin-top:22px;padding-top:12px}
+@media(max-width:720px){.credit{margin-top:26px;font-size:10.5px}}
+@media print{.credit{opacity:1;color:#555;border-color:#ddd}}
 /* ---------- native app shell ---------- */
 body{overscroll-behavior-y:none;-webkit-tap-highlight-color:transparent;
   padding-top:env(safe-area-inset-top);padding-bottom:env(safe-area-inset-bottom)}
@@ -736,11 +744,11 @@ function render(){
  const tc=document.querySelector('meta[name="theme-color"]');
  if(tc)tc.content=S.settings.theme==='night'?'#131B25':'#FFFFFF';
  const root=document.getElementById('root');
- if(!S.setup){root.innerHTML=onboard();return;}
+ if(!S.setup){root.innerHTML=onboard()+credit();return;}
  repair();applyRecurring();
  const V={today:vToday,calendar:vCal,weekly:vWeekly,subjects:vSubjects,files:vFiles,tests:vTests,pyq:vPyq,log:vLog,
   revise:vRevise,notes:vNotes,search:vSearch,analytics:vAnalytics,projection:vProjection,report:vReport,settings:vSettings};
- root.innerHTML=topbar()+(drawer?scrim():'')+banner()+`<div class="wrap">${(V[page]||vToday)()}</div>`+dock()+tabbar()+(keysOpen?keysSheet():'')+(dlg?dlgSheet():'');
+ root.innerHTML=topbar()+(drawer?scrim():'')+banner()+`<div class="wrap">${(V[page]||vToday)()}${credit()}</div>`+dock()+tabbar()+(keysOpen?keysSheet():'')+(dlg?dlgSheet():'');
  requestAnimationFrame(animateHero);
 }
 function shutDrawer(){
@@ -760,6 +768,7 @@ function animateHero(){
   el.textContent=(from+(to-from)*e).toFixed(2)+'h';
   if(k<1)requestAnimationFrame(step);})(t0);
 }
+const credit=()=>`<div class="credit">Made by: VIKALP :)</div>`;
 function banner(){
  const b=[];
 
