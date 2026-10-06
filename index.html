@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Preparation Ledger</title>
 <meta name="theme-color" content="#1D5FD0">
 <meta name="mobile-web-app-capable" content="yes">
@@ -388,6 +388,51 @@ body[data-density="compact"] .hero{padding:13px 15px}
   th{background:#f3f3f3}
 }
 
+/* ---------- native app shell ---------- */
+body{overscroll-behavior-y:none;-webkit-tap-highlight-color:transparent;
+  padding-top:env(safe-area-inset-top);padding-bottom:env(safe-area-inset-bottom)}
+.top,.drawer,.tabbar,.nav,.seg,.pill,.stat span,th,.dow,.fab,.chip,.tag,kbd,.grip{
+  -webkit-user-select:none;user-select:none}
+button,.cd,.chk,.task{touch-action:manipulation}
+.wrap,.drawer,.notelist,.sheet{-webkit-overflow-scrolling:touch}
+/* touch devices get press feedback instead of hover states */
+@media (hover:none){
+  .btn:hover,.icon:hover,.chip:hover,.cd:hover,.card:hover,.task:hover,.nav button:hover,.choice:hover{
+    background:inherit;border-color:inherit;color:inherit;box-shadow:inherit;transform:none}
+  .btn:active,.chip:active{background:var(--fill);transform:scale(.97)}
+  .btn.p:active{background:var(--deep-2)}
+  .icon:active,.burger:active{background:var(--fill);transform:scale(.94)}
+  .cd:active{transform:scale(.95)}
+  .nav button:active{background:var(--fill)}
+  .task:active{background:var(--fill)}
+  .fab:active{transform:scale(.96)}
+}
+/* bottom tab bar — mobile only; the drawer still holds everything */
+.tabbar{display:none}
+.tabbar .more.on,.tabbar button.on{color:var(--deep)}
+@media (max-width:720px){
+  .tabbar{display:grid;position:fixed;left:0;right:0;bottom:0;z-index:36;
+    grid-template-columns:repeat(5,1fr);gap:2px;
+    padding:6px 6px calc(6px + env(safe-area-inset-bottom));
+    background:color-mix(in srgb,var(--paper-2) 92%,transparent);
+    backdrop-filter:saturate(180%) blur(16px);-webkit-backdrop-filter:saturate(180%) blur(16px);
+    border-top:1px solid var(--rule)}
+  .tabbar button{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;
+    background:none;border:0;padding:7px 2px 5px;border-radius:var(--r-sm);
+    color:var(--ink-faint);font-size:10.5px;font-weight:600;letter-spacing:.01em;min-height:52px}
+  .tabbar button svg{width:21px;height:21px;stroke-width:1.7}
+  .tabbar button.on{color:var(--deep);background:var(--deep-weak)}
+  .wrap{padding-bottom:calc(96px + env(safe-area-inset-bottom))}
+  .dock{bottom:calc(78px + env(safe-area-inset-bottom));right:14px}
+  .toast{bottom:calc(84px + env(safe-area-inset-bottom))}
+  .top{position:sticky;padding-top:0}
+  .banner{margin-top:12px}
+}
+/* installed app: tighter chrome, no page-like margins */
+body[data-standalone="1"] .wrap{padding-top:14px}
+@media (display-mode:standalone){
+  .top{box-shadow:none}
+}
 /* ---------- responsive ---------- */
 @media(max-width:880px){
   .wrap{padding-bottom:140px}
@@ -609,6 +654,11 @@ const ICO={
  phone:SVG('<rect x="7" y="2.5" width="10" height="19" rx="2.5"/><path d="M11 18.6h2"/>'),
  pencil:SVG('<path d="M4 20h4L19.5 8.5a2.1 2.1 0 0 0-3-3L5 17v3Z"/><path d="M14.5 5.5l3 3"/>'),
  grip:SVG('<circle cx="9" cy="6" r="1.3" fill="currentColor" stroke="none"/><circle cx="15" cy="6" r="1.3" fill="currentColor" stroke="none"/><circle cx="9" cy="12" r="1.3" fill="currentColor" stroke="none"/><circle cx="15" cy="12" r="1.3" fill="currentColor" stroke="none"/><circle cx="9" cy="18" r="1.3" fill="currentColor" stroke="none"/><circle cx="15" cy="18" r="1.3" fill="currentColor" stroke="none"/>'),
+ home:SVG('<path d="M4 10.4 12 4l8 6.4V20a1 1 0 0 1-1 1h-4.5v-6h-5v6H5a1 1 0 0 1-1-1Z"/>'),
+ cal:SVG('<rect x="3" y="5" width="18" height="16" rx="2.5"/><path d="M3 10h18M8 3v4M16 3v4"/>'),
+ book:SVG('<path d="M4 4.5h6a2.5 2.5 0 0 1 2 2.5v13a2 2 0 0 0-2-1.6H4Z"/><path d="M20 4.5h-6a2.5 2.5 0 0 0-2 2.5v13a2 2 0 0 1 2-1.6h6Z"/>'),
+ chart:SVG('<path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>'),
+ menu:SVG('<path d="M4 7h16M4 12h16M4 17h16"/>'),
  play:SVG('<path d="M7 4.8v14.4L19.5 12 7 4.8Z" fill="currentColor" stroke="none"/>')
 };
 const flame=(sz=16,col='currentColor')=>`<svg viewBox="0 0 24 24" width="${sz}" height="${sz}" style="vertical-align:-2px" aria-hidden="true">
@@ -661,6 +711,16 @@ function cell(d,max){
   <span class="small num" style="opacity:.7">${L.length?done+'/'+L.length:''}</span></button>`;
 }
 
+const TABS=[['today','Today','home'],['calendar','Calendar','cal'],['subjects','Syllabus','book'],
+ ['tests','Tests','chart']];
+function tabbar(){
+ const inTabs=TABS.some(t=>t[0]===page);
+ return`<nav class="tabbar noprint" aria-label="Main">
+  ${TABS.map(([k,l,i])=>`<button class="${k===page?'on':''}" data-a="go" data-p="${k}"
+   aria-current="${k===page?'page':'false'}">${ICO[i]}<span>${l}</span></button>`).join('')}
+  <button class="more ${inTabs?'':'on'}" data-a="drawer" aria-label="All sections">${ICO.menu}<span>More</span></button>
+ </nav>`;
+}
 const PAGES=[['today','Today'],['calendar','Calendar'],['weekly','Weekly plan'],['subjects','Subjects & progress'],
  ['files','Your notes'],['tests','Tests & marks'],['pyq','Previous years'],['log','Study log'],['revise','Revision'],['notes','Quick notes'],
  ['search','Search'],['analytics','Analytics'],['projection','Projection'],['report','Monthly report'],['settings','Settings']];
@@ -673,12 +733,14 @@ function render(){
  document.documentElement.dataset.theme=S.settings.theme;
  document.body.dataset.view=S.settings.view;
  document.body.dataset.density=S.settings.density||'comfortable';
+ const tc=document.querySelector('meta[name="theme-color"]');
+ if(tc)tc.content=S.settings.theme==='night'?'#131B25':'#FFFFFF';
  const root=document.getElementById('root');
  if(!S.setup){root.innerHTML=onboard();return;}
  repair();applyRecurring();
  const V={today:vToday,calendar:vCal,weekly:vWeekly,subjects:vSubjects,files:vFiles,tests:vTests,pyq:vPyq,log:vLog,
   revise:vRevise,notes:vNotes,search:vSearch,analytics:vAnalytics,projection:vProjection,report:vReport,settings:vSettings};
- root.innerHTML=topbar()+(drawer?scrim():'')+banner()+`<div class="wrap">${(V[page]||vToday)()}</div>`+dock()+(keysOpen?keysSheet():'')+(dlg?dlgSheet():'');
+ root.innerHTML=topbar()+(drawer?scrim():'')+banner()+`<div class="wrap">${(V[page]||vToday)()}</div>`+dock()+tabbar()+(keysOpen?keysSheet():'')+(dlg?dlgSheet():'');
  requestAnimationFrame(animateHero);
 }
 function shutDrawer(){

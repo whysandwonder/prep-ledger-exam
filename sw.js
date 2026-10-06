@@ -1,5 +1,5 @@
 /* Preparation Ledger service worker — offline first, update in the background */
-const CACHE = 'ledger-v1';
+const CACHE = 'ledger-v2';
 const ASSETS = ['./','./index.html','./manifest.webmanifest',
   './icon-192.png','./icon-512.png','./icon-maskable-512.png','./apple-touch-icon.png'];
 
